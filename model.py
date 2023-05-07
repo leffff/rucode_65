@@ -14,7 +14,7 @@ class MegaSiameseModel(nn.Module):
     def forward(self, batch):
         emb1 = self.bert1(batch['context']).last_hidden_state[:, 0, :]
         emb1 = torch.nn.functional.normalize(emb1)
-        emb2 = self.bert1(batch['answer']).last_hidden_state[:, 0, :]
+        emb2 = self.bert2(batch['answer']).last_hidden_state[:, 0, :]
         emb2 = torch.nn.functional.normalize(emb2)
         x = torch.cat((emb1, emb2), dim=-1)
         return self.out(x)
