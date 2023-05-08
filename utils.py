@@ -7,11 +7,13 @@ class TopG_Dataset(Dataset):
                  df,
                  tokenizer,
                  context_len=200,
-                 answer_len=60):
+                 answer_len=60,
+                 train=True):
         self._df = df.copy()
         self.tokenizer = tokenizer
         self.context_len = context_len
         self.answer_len = answer_len
+        self.train = train
         self.preprocess_df()
 
     def __len__(self):
@@ -28,11 +30,14 @@ class TopG_Dataset(Dataset):
         )
 
     def preprocess_df(self):
-        label2class = {
-            "people": 0,
-            "ai": 1
-        }
-        self._df.label = self._df.label.map(label2class)
+        if self.train:
+            label2class = {
+                "people": 0,
+                "ai": 1
+            }
+            self._df.label = self._df.label.map(label2class)
+        else:
+            self._df.label = 0
         self._df[["context", "answer"]] = self._df[["context", "answer"]].apply(
             lambda row: self.encode_sequence(row), result_type="expand", axis=1
         )
