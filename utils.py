@@ -1,6 +1,6 @@
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import torch
-
+import numpy as np
 
 class TopG_Dataset(Dataset):
     def __init__(self,
@@ -74,3 +74,49 @@ def topg_collate(x):
         "answer": answer,
         "label": label,
     }
+
+
+def predict(model, 
+            tokenizer, 
+            test_df, 
+            sub_df, 
+            path_to_save,
+            context_len=200,
+            answer_len=60,
+            batch_size=64,
+            device=None):
+    if device is None:
+         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    test_dataset = TopG_Dataset(test_df, 
+                           tokenizer, 
+                           context_len, 
+                           answer_len, 
+                           train=False)
+    test_loader = DataLoader(test_dataset, 
+                             batch_size=batch_size, 
+                             collate_fn=topg_collate, 
+                             shuffle=False)
+    
+    model = model.to(device)
+    model.eval()
+    preds = np.zeros(len(test_dataset))
+    for batch in test_loader:
+        for key in batch:
+            batch[key] = batch[key].to(device)
+        with torch.no_grad():
+            scores = model(batch)
+        batch_preds = torch.argmax(scores, axis=1)
+        preds[batch["idx"].detach().cpu().numpy()] = batch_preds.detach().cpu().numpy()
+    
+    class2label = {
+    0: "people",
+    1: "ai"
+    }
+    sub_df.label = preds
+    sub_df.label = sub_df.label.map(class2label)
+
+    sub_df.to_csv(path_to_save)
+
+
+
+
