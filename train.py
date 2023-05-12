@@ -2,7 +2,8 @@ import torch
 from tqdm.auto import tqdm
 from sklearn.metrics import f1_score
 
-def train_epoch(model, data_loader, loss_function, optimizer, scheduler, device, n_accumulated_grads=0):
+
+def train_epoch(model, data_loader, loss_function, optimizer, scheduler, device):
     model.to(device)
     model.train()
     total_train_loss = 0
@@ -29,14 +30,6 @@ def train_epoch(model, data_loader, loss_function, optimizer, scheduler, device,
         
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        if steps_to_accumulate_grads == n_accumulated_grads:
-            optimizer.step()
-            scheduler.step()
-            steps_to_accumulate_grads = 0
-        else:
-            steps_to_accumulate_grads += 1
-            
-    if steps_to_accumulate_grads != 0:
         optimizer.step()
         scheduler.step()
     
