@@ -9,7 +9,7 @@ class MegaSiameseModel(nn.Module):
         #del bert1.pooler, bert2.pooler
         self.emb1_dim = self.bert1.embeddings.word_embeddings.weight.shape[-1]
         self.emb2_dim = self.bert2.embeddings.word_embeddings.weight.shape[-1]
-        self.out = nn.Linear(self.emb1_dim+self.emb2_dim, out_dim)
+        self.out = nn.Linear(self.emb2_dim, out_dim)
     
     def forward(self, batch):
         # emb1 = self.bert1(batch['context']).last_hidden_state[:, 0, :]
