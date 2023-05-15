@@ -1,5 +1,5 @@
-# rucode_7
-1st place solution to RuCode 7.0
+# rucode-6-5
+1st place solution to RuCode 6.5
 
 Private leaderboard  (rucode6.5-team0325) |
 :----------------------------------------:|
